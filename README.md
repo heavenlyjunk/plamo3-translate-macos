@@ -199,11 +199,27 @@ Gradioのサーバーは `127.0.0.1` にバインドし、外部公開しない�
 
 ## ライセンスと謝辞
 
-PLaMo 3 TranslateはPreferred Networksが開発した翻訳モデルです。モデル本体は **PLaMo Community License** に基づいて公開されています。
+## ライセンスと謝辞
 
-モデルの利用に際しては、公式のライセンス条件を確認してください。
+本リポジトリの自作スクリプトおよび関連ドキュメントは、[MIT License](LICENSE) に基づいて公開します。
 
-本リポジトリに掲載する自作スクリプトのライセンスは、モデルのライセンスとは別途定める予定です。
+**Built with PLaMo**
+
+本アプリケーションは、Preferred Networksが開発したPLaMo 3 Translateを使用する非公式プロジェクトです。
+
+PLaMo 3 Translateのモデル本体（重み・モデルコードなど）は本リポジトリに含まれておらず、Preferred Networksが定める [PLaMo Community License](https://plamo.preferredai.jp/info/plamo-community-license-ja) が適用されます。
+
+モデルの利用者は、商用利用を含む利用条件、再配布条件および表示義務について、公式ライセンスを確認してください。本リポジトリのMIT Licenseは、PLaMoのモデル本体には適用されません。
+
+本プロジェクトはPreferred Networksによる公式の製品・サービスではありません。
+
+### 関連プロジェクト
+
+- [PLaMo 3 Translate — Preferred Networks](https://huggingface.co/collections/pfnet/plamo-3-translate)
+- [MLX — Apple](https://github.com/ml-explore/mlx)
+- [mlx-lm](https://github.com/ml-explore/mlx-lm)
+- [Gradio](https://www.gradio.app/)
+
 
 ### 関連プロジェクト
 
