@@ -222,16 +222,12 @@ PLaMo Community Licenseの全文は、[こちら](docs/PLaMo_COMMUNITY_LICENSE_j
 - [mlx-lm](https://github.com/ml-explore/mlx-lm)
 - [Gradio](https://www.gradio.app/)
 
-
-### 関連プロジェクト
-
-- [PLaMo 3 Translate — Preferred Networks](https://huggingface.co/collections/pfnet/plamo-3-translate)
-- [MLX — Apple](https://github.com/ml-explore/mlx)
-- [mlx-lm](https://github.com/ml-explore/mlx-lm)
-- [Gradio](https://www.gradio.app/)
+## 開発状況
 
 ## 開発状況
 
-4種類のモデルについて、ローカルでのモデル読み込み、基本的な翻訳、およびGradioサーバーの起動を確認しています。
+4種類のモデル（0.8B / 2B / 8B / 31B）について、ローカルでのモデル読み込み、基本的な翻訳、およびGradioサーバーの起動を確認しています。
 
-公開用スクリプトと詳細な構築ガイドは順次整備します。
+本リポジトリでは、Python・Shell・AppleScriptの実装スクリプトと、[日本語セットアップガイド](docs/SETUP_ja.md)を公開しています。
+
+動作確認環境以外のmacOSやPython・ライブラリのバージョン、およびすべての言語ペアでの動作・翻訳品質を保証するものではありません。
