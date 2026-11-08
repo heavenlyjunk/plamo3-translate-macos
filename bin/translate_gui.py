@@ -119,6 +119,10 @@ def main():
             f"# PLaMo 3 Translate {display_size}\n"
             "ローカル MLX 翻訳アプリ（53言語対応）"
         )
+        gr.Markdown(
+            "**Built with PLaMo** — "
+            "[Preferred Networks](https://huggingface.co/collections/pfnet/plamo-3-translate)"
+        )
         translation_mode = gr.Radio(
             choices=[
                 ("日本語 → 英語", "ja-en"),
