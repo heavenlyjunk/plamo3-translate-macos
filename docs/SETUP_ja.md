@@ -221,6 +221,8 @@ python test.py --model-size 0.8b
 
 **動作確認時に得られた翻訳例：**
 
+以下の翻訳例は、Preferred NetworksのPLaMo 3 Translate（MLX-4bitモデル）によって生成されたものです。各行の英文は、それぞれのモデルが出力した翻訳結果です。
+
 | モデル | 英訳結果 |
 |---|---|
 | 31B | `The meeting has been rescheduled for next Monday.` |
