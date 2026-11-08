@@ -72,7 +72,11 @@ https://huggingface.co/collections/pfnet/plamo-3-translate
 
 ## インストール概要
 
+以下は、Apple Silicon搭載MacでPLaMo 3 Translateを利用するための基本的な環境構築手順です。ターミナルで順番に実行してください。
+
 ### 1. Python仮想環境の作成とアクティベート
+
+プロジェクト用ディレクトリとPython仮想環境を作成します。
 
 ```bash
 mkdir -p ~/MyProject/bin ~/MyProject/lib
@@ -80,62 +84,110 @@ cd ~/MyProject
 
 python3 -m venv plamo-mlx-env
 source plamo-mlx-env/bin/activate
-
-pip install -U pip huggingface_hub
 ```
 
-### 2. 仮想環境内でのhuggingface_hubのインストール
+仮想環境を有効化した後、`pip` をアップグレードします。
 
 ```bash
-pip install -U pip huggingface_hub
+python -m pip install -U pip
 ```
 
-### 3. 仮想環境内でのモデルのダウンロード
+### 2. Hugging Face Hubのインストール
+
+モデルをダウンロードするための `huggingface_hub` を仮想環境にインストールします。
+
+```bash
+python -m pip install huggingface_hub
+```
+
+### 3. PLaMo 3 Translateの4モデルをダウンロード
+
+Preferred Networksの公式Hugging Faceリポジトリから、4種類のMLX-4bitモデルをダウンロードします。
 
 ```bash
 hf download pfnet/plamo-3-translate-31b-MLX-4bit --local-dir "$HOME/MyProject/lib/plamo-3-translate-31b-MLX-4bit"
+
 hf download pfnet/plamo-3-translate-8b-MLX-4bit --local-dir "$HOME/MyProject/lib/plamo-3-translate-8b-MLX-4bit"
+
 hf download pfnet/plamo-3-translate-2b-MLX-4bit --local-dir "$HOME/MyProject/lib/plamo-3-translate-2b-MLX-4bit"
+
 hf download pfnet/plamo-3-translate-0.8b-MLX-4bit --local-dir "$HOME/MyProject/lib/plamo-3-translate-0.8b-MLX-4bit"
 ```
 
-### 4. 仮想環境内でのモデルに必要なライブラリのインストール
+ダウンロードには合計で約28GBのモデルデータに加え、キャッシュなどの保存領域が必要です。十分な空き容量を確保してください。
+
+### 4. MLXモデルに必要なライブラリのインストール
+
+モデルに同梱されている依存ライブラリの定義ファイルを使用します。
 
 ```bash
-pip install -U -r "$HOME/MyProject/lib/plamo-3-translate-31b-MLX-4bit/requirements-mlx.txt"
+python -m pip install -r "$HOME/MyProject/lib/plamo-3-translate-31b-MLX-4bit/requirements-mlx.txt"
 ```
 
-### 5. 仮想環境内でのGradioのインストール
+本プロジェクトで検証した4モデルでは、共通の仮想環境を使用しています。
+
+### 5. Gradio 6系のインストール
+
+翻訳用GUIとしてGradioをインストールします。
 
 ```bash
-pip install gradio
+python -m pip install 'gradio>=6,<7'
 ```
 
 ### 6. アプリケーションの配置
 
-本リポジトリの `bin/` に収録するPython、Shell、AppleScriptファイルを `~/MyProject/bin/` に配置します。
+本リポジトリにあるアプリケーション用スクリプトを、`~/MyProject/bin/` に配置します。
 
-### 7. 翻訳GUIの起動
+配置するファイル：
+
+- `translate_gui.py`：Gradio翻訳インターフェース
+- `start_plamo.sh`：バックグラウンド起動・終了管理
+- `plamo_stayopen_launcher.applescript`：Dock常駐型AppleScriptアプリ
+
+ターミナルで次のコマンドを実行し、シェルスクリプトに実行権限を付与します。
+
+```bash
+chmod 755 ~/MyProject/bin/start_plamo.sh
+```
+
+### 7. 翻訳GUIの起動と動作確認
+
+プロジェクトディレクトリから、使用するモデルを指定して起動します。
 
 例えば31Bモデルを使用する場合：
 
 ```bash
+cd ~/MyProject
 python bin/translate_gui.py --model-size 31b
 ```
 
-起動後、Webブラウザから次のURLにアクセスします。
+起動後、Webブラウザで次のURLにアクセスします。
 
 http://127.0.0.1:7860/
 
-### 8. 仮想環境のディアクティベート
+ほかのモデルを使用する場合は、`--model-size` に `0.8b`、`2b`、`8b`、`31b` のいずれかを指定してください。
+
+翻訳処理が正常に実行できることを確認してください。
+
+### 8. 翻訳GUIの終了と仮想環境のディアクティベート
+
+翻訳GUIの「終了（モデルを停止）」ボタンをクリックすると、モデルを実行しているPythonサーバーが終了します。ターミナルから `Ctrl+C` で停止することもできます。
+
+Pythonの実行が終了したら、必要に応じて仮想環境を無効化します。
 
 ```bash
 deactivate
 ```
 
-AppleScriptをmacOSアプリケーションとして書き出すことで、Dockからモデルを選択して起動することもできます。
+### 9. macOSアプリケーションとしての利用
 
-詳細なインストール手順とAppleScriptアプリの作成方法は、別途公開する構築ガイドを参照してください。
+`plamo_stayopen_launcher.applescript` をmacOS標準のスクリプトエディタで開き、「アプリケーション」形式で書き出します。
+
+書き出す際には「実行後も終了しない」を有効にしてください。
+
+これにより、Dockからアプリを起動して使用するモデルを選択し、Gradio翻訳インターフェースを利用できるようになります。
+
+詳細なインストール方法やAppleScriptアプリの作成手順については、別途公開する構築ガイドを参照してください。
 
 ## セキュリティとプライバシー
 
