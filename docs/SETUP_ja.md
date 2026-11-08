@@ -1,11 +1,11 @@
 # PLaMo 3 Translate for macOS — 環境構築・アプリ実装ガイド
 
-**4モデル対応（0.8B / 2B / 8B / 31B）｜2026年11月8日の構築ログを基に整理**
+**4モデル対応（0.8B / 2B / 8B / 31B）｜日本語セットアップガイド**
 
 対象：Apple Silicon搭載Mac / Python仮想環境 / MLX-4bit / Gradio 6 / AppleScript常駐アプリ  
 作業ディレクトリ：`~/MyProject`　｜　ローカルURL：`http://127.0.0.1:7860/`　｜　アプリ名：`PLaMo Translate.app`
 
-> **検証状況：** 4モデルのダウンロード、必要パッケージのインストール、各モデルの単体英訳、および各モデルでのGradioサーバー起動は、実際の操作ログで確認しています。一方、バックグラウンド起動スクリプトの実行、AppleScriptからのアプリ書き出し、Dockとの連動については、提供されたログに検証結果がありません。本ガイドにはその実装・確認手順も含めますが、**すべての機能の実機検証完了を意味するものではありません**。
+> **動作確認について：** Python 3.15と以下に記載するライブラリの組み合わせで、4モデルの読み込み、単体英訳、およびGradioサーバーの起動を確認しています。AppleScriptアプリの書き出しやアプリ動作はmacOS環境により挙動が異なることがあるため、各節にある手順に従って個別に確認してください。**すべてのmacOS環境や言語ペアでの動作・翻訳品質を保証するものではありません**。
 
 本プロジェクトは個人による非公式な実装であり、Preferred Networksの公式アプリケーションではありません。概要は[README](../README.md)、実装ソースは[`bin/`](../bin/)を参照してください。
 
@@ -14,7 +14,7 @@
 - [PLaMo 3 Translate](https://huggingface.co/pfnet/plamo-3-translate-31b-MLX-4bit)の **0.8B・2B・8B・31B** をMLX-4bit形式でダウンロードします。
 - Python仮想環境を1つ作成し、**選択した1モデルのみ**を起動時にロードします。
 - Gradioの翻訳GUIで「日本語 → 英語」「英語 → 日本語」「その他の言語」を排他的に選択します。「その他の言語」モードでは53の言語選択肢から翻訳元・翻訳先を指定できます。
-- AppleScript製の常駐アプリからモデルを選択して起動し、Dockから実行中の画面を再表示する構成です。Automatorは使用しません。
+- AppleScript製の常駐アプリからモデルを選択して起動し、ブラウザで翻訳インターフェースを表示する構成です。
 - すべてのモデルが同じポート `7860` を使用するため、別モデルを使う場合はいったん現在のモデルを停止します。
 
 構築先の例：
@@ -46,7 +46,7 @@ uname -m
 python3 --version
 ```
 
-`uname -m` は通常 `arm64` です。**実際の構築ログはPython 3.15環境**で取得されています。Python 3.15以外のバージョンを利用する場合、依存ライブラリのインストール可否や動作が異なることがあります。以降は、`python3` で使われるPythonが目的のバージョンであることを前提とします。
+`uname -m` は通常 `arm64` です。**動作確認時にはPython 3.15を使用しています。** 別のバージョンでは、利用可能なMLX等のパッケージや動作が異なる場合があります。以降は、`python3` で使われるPythonが目的のバージョンであることを前提とします。
 
 既存の翻訳サーバーや他のWebアプリとの競合を避けるため、ポート7860が空いているか確認します。
 
@@ -84,49 +84,45 @@ python -m pip install huggingface_hub
 hf --help
 ```
 
-実際の構築ログでは `pip install -U pip huggingface_hub` を実行し、`pip 26.3`、`huggingface_hub 2.4.0`、`hf-xet 1.8.0` が導入されました。ここでは[README](../README.md)と同様に、`pip` 更新と `huggingface_hub` 導入を分けて記載しています。
+ここでは[README](../README.md)と同様に、`pip` の更新と `huggingface_hub` の導入を分けています。パッケージのバージョンはインストール時期によって変わる場合があります。
 
-Hugging Faceへのログインは、公開モデルのダウンロードに必ずしも必要ではありません。未認証時に利用制限についての警告が表示されても、ダウンロード自体が完了する場合があります。**アクセストークンを文書・ソースコード・実行ログに書き込まないでください。**
+Hugging Faceへのログインは、公開モデルのダウンロードに必ずしも必要ではありません。未認証時に利用制限についての警告が表示されても、ダウンロード自体が完了する場合があります。**アクセストークンを文書・ソースコード・公開するファイルに書き込まないでください。**
 
 ## 5. PLaMo 3 Translateの4モデルをダウンロード
 
-Preferred Networksの公式Hugging Faceリポジトリから、**MLX-4bit**版を取得します。以下の順序は実際の構築ログと同じです。
+Preferred Networksの公式Hugging Faceリポジトリから、**MLX-4bit**版を取得します。以下のコマンドは各モデルを個別に取得します。必要に応じて実行順序を変更しても構いません。
 
 ### 5.1 31B
 
 ```bash
-hf download pfnet/plamo-3-translate-31b-MLX-4bit \
-  --local-dir "$HOME/MyProject/lib/plamo-3-translate-31b-MLX-4bit"
+hf download pfnet/plamo-3-translate-31b-MLX-4bit --local-dir "$HOME/MyProject/lib/plamo-3-translate-31b-MLX-4bit"
 ```
 
-実行ログでは26ファイルが取得され、再構築後の表示は約18.7GBでした。
+モデルデータの容量の目安は約18.7GBです。
 
 ### 5.2 8B
 
 ```bash
-hf download pfnet/plamo-3-translate-8b-MLX-4bit \
-  --local-dir "$HOME/MyProject/lib/plamo-3-translate-8b-MLX-4bit"
+hf download pfnet/plamo-3-translate-8b-MLX-4bit --local-dir "$HOME/MyProject/lib/plamo-3-translate-8b-MLX-4bit"
 ```
 
-実行ログでは27ファイル、約6.07GBでした。
+モデルデータの容量の目安は約6.07GBです。
 
 ### 5.3 2B
 
 ```bash
-hf download pfnet/plamo-3-translate-2b-MLX-4bit \
-  --local-dir "$HOME/MyProject/lib/plamo-3-translate-2b-MLX-4bit"
+hf download pfnet/plamo-3-translate-2b-MLX-4bit --local-dir "$HOME/MyProject/lib/plamo-3-translate-2b-MLX-4bit"
 ```
 
-実行ログでは24ファイル、約2.42GBでした。
+モデルデータの容量の目安は約2.42GBです。
 
 ### 5.4 0.8B
 
 ```bash
-hf download pfnet/plamo-3-translate-0.8b-MLX-4bit \
-  --local-dir "$HOME/MyProject/lib/plamo-3-translate-0.8b-MLX-4bit"
+hf download pfnet/plamo-3-translate-0.8b-MLX-4bit --local-dir "$HOME/MyProject/lib/plamo-3-translate-0.8b-MLX-4bit"
 ```
 
-実行ログでは21ファイル、約981MBでした。容量はいずれも取得時の表示値であり、将来のモデル更新によって変わる可能性があります。
+モデルデータの容量の目安は約981MBです。容量はモデルのリビジョン等により変わる可能性があります。
 
 ### 5.5 ダウンロード結果の確認
 
@@ -142,20 +138,19 @@ done
 
 4件すべてが `OK` なら、最低限の配置を確認できます。ただし、**`config.json` の存在だけでは全重みファイルの整合性を保証しません**。次のモデルロード・翻訳テストで確認します。
 
-実際のログには `.gitignore.lock` についての一時的な待機と、未認証アクセスの警告が記録されていますが、4モデルともダウンロード完了を確認しました。失敗した場合は通信状況や保存先の空き容量を確認し、同じ `hf download` コマンドを再実行してください。
+ダウンロード中に `.gitignore.lock` の取得待ちや、未認証アクセスに関する警告が表示される場合があります。それだけで失敗とは限りません。最終的にダウンロードが完了したか確認し、失敗した場合は通信状況・空き容量を確認して同じ `hf download` コマンドを再実行してください。
 
 ## 6. MLX関連ライブラリのインストール
 
 31Bモデルの配布フォルダ内にある `requirements-mlx.txt` に従ってインストールします。4モデルは共通の仮想環境を使用します。
 
 ```bash
-python -m pip install -r \
-  "$HOME/MyProject/lib/plamo-3-translate-31b-MLX-4bit/requirements-mlx.txt"
+python -m pip install -r "$HOME/MyProject/lib/plamo-3-translate-31b-MLX-4bit/requirements-mlx.txt"
 ```
 
-実際の構築ログでは各モデルの `requirements-mlx.txt` に対して順次 `pip install -U -r ...` を実行しましたが、31Bの導入後、残り3モデルでは依存パッケージがすべて導入済みと表示されました。したがって、このガイドではREADMEと同じく**31Bの定義ファイルによる一度の導入**を基本としています。将来モデル間で依存関係が異なる場合は、各リポジトリのファイルを確認してください。
+このガイドでは[README](../README.md)と同じく、**31Bモデルの依存関係定義ファイルを使って共通環境を一度構築する方法**を示します。モデルのリビジョンや依存関係が変更された場合は、各モデルに含まれる `requirements-mlx.txt` を確認してください。
 
-実際のログで確認した主要バージョン：
+動作確認に使用した主なバージョン（参考）：
 
 | パッケージ | バージョン |
 |---|---|
@@ -167,7 +162,7 @@ python -m pip install -r \
 | `numpy` | 2.5.4 |
 | `huggingface_hub` | 2.4.0 |
 
-これらは当日のインストール結果であり、上記コマンドの再実行で常に同一バージョンが導入される保証はありません。
+これらは動作確認時のバージョンです。上記コマンドはバージョンを固定していないため、将来同じバージョンが導入されるとは限りません。
 
 ## 7. Gradio 6系のインストール
 
@@ -178,7 +173,7 @@ python -m pip install 'gradio>=6,<7'
 python -c 'import gradio, mlx_lm; print("Gradio:", gradio.__version__)'
 ```
 
-実際の構築ログでは `pip install gradio` により**Gradio 6.31.0**、`gradio-client 2.7.2`が導入されました。公開手順ではGradio 7系への意図しない更新を避けるために6系を指定しています。ただし6系の将来の更新にも互換性の変化はあり得ます。構築時と同じGradioバージョンに固定する場合は、`python -m pip install 'gradio==6.31.0'` を利用してください。
+動作確認時のバージョンは **Gradio 6.31.0** です。上記の指定ではGradio 7系を除外しますが、6系内部でも仕様変更が起こる場合があります。確認済みのバージョンに固定する場合は、`python -m pip install 'gradio==6.31.0'` を使用してください。
 
 ## 8. アプリケーションの取得と配置
 
@@ -210,9 +205,9 @@ python -m py_compile ~/MyProject/bin/translate_gui.py
 
 これらは構文検査であり、モデルの読み込みやmacOS上でのAppleScriptコンパイルまで保証するものではありません。
 
-## 9. 4モデルの単体英訳テスト（任意・実行ログで成功確認）
+## 9. 4モデルの単体英訳テスト（任意）
 
-本リポジトリで公開する実装スクリプトは前節の**3ファイル**です。モデル単体の確認に使った `test.py` はGitHubの `bin/` に含めていないため、必要な場合は本書末尾の「付録A：単体テスト用 `test.py`」に掲載したコードを `~/MyProject/test.py` として保存してください。
+本リポジトリで公開する実装スクリプトは前節の**3ファイル**です。単体テスト用の `test.py` は `bin/` に含まれていないため、必要に応じて本書末尾の「付録A：単体テスト用 `test.py`」に掲載したコードを `~/MyProject/test.py` として保存してください。
 
 ```bash
 cd ~/MyProject
@@ -224,7 +219,7 @@ python test.py --model-size 0.8b
 
 各コマンドが終了してから次を実行してください。テストの原文は「会議は来週の月曜日に変更されました。」です。
 
-**2026年11月8日の実行ログに記録された出力：**
+**動作確認時に得られた翻訳例：**
 
 | モデル | 英訳結果 |
 |---|---|
@@ -233,11 +228,11 @@ python test.py --model-size 0.8b
 | 2B | `The meeting has been rescheduled for next Monday.` |
 | 0.8B | `The meeting has been moved to next Monday.` |
 
-全モデルで英文の出力に成功しています。起動時に `[transformers] You are using a model of type 'plamo3' ...` という警告がありましたが、今回のログでは翻訳処理に成功しています。**このテストだけで全53言語・全翻訳ペアの品質を検証したことにはなりません。**
+動作確認では4モデルすべてから英文が返されました。生成される訳文は実行環境やモデルの更新によって異なる場合があります。起動時に `[transformers] You are using a model of type 'plamo3' ...` という警告が表示されることがありますが、翻訳が正常に返るなら、この警告のみをもって失敗と判断する必要はありません。**このテストで全53言語・全翻訳ペアの品質が検証されるわけではありません。**
 
 確認後、テスト用に新規作成した `~/MyProject/test.py` が不要なら削除して構いません。ただし、他のファイルを誤って削除しないようにしてください。
 
-## 10. Gradio翻訳GUIの起動確認（実行ログで確認）
+## 10. Gradio翻訳GUIの起動確認
 
 たとえば31Bモデルを指定して起動します。
 
@@ -254,7 +249,7 @@ Model loaded successfully.
 * Running on local URL:  http://127.0.0.1:7860
 ```
 
-ブラウザで `http://127.0.0.1:7860/` を開きます。日本語・英語の翻訳や、その他の言語モード、参考文脈欄、訳文のコピー、終了ボタンなどを確認してください。実行ログで確認できるのは**各モデルのロードとWebサーバー起動**であり、GUI各部のすべての操作が検証済みという意味ではありません。
+ブラウザで `http://127.0.0.1:7860/` を開きます。日本語・英語の翻訳、その他の言語モード、参考文脈欄、訳文のコピー、終了ボタンの動作を順に確認してください。Gradioサーバーの起動と、各GUI機能が正常に動作することは別の確認項目です。
 
 モデルサイズを変える場合は、**前のPythonプロセスを停止してから**次を実行します。
 
@@ -266,9 +261,9 @@ python bin/translate_gui.py --model-size 2b
 python bin/translate_gui.py --model-size 0.8b
 ```
 
-使用できる `--model-size` は `0.8b`、`2b`、`8b`、`31b` です。翻訳画面の「終了（モデルを停止）」ボタン、またはターミナルで `Ctrl+C` により停止します。**ブラウザタブを閉じるだけではサーバーは停止しません。** 実行ログでは各テスト後に `zsh: terminated` と表示されましたが、停止に使用した具体的操作までは判別できません。
+使用できる `--model-size` は `0.8b`、`2b`、`8b`、`31b` です。翻訳画面の「終了（モデルを停止）」ボタン、またはターミナルで `Ctrl+C` により停止します。**ブラウザタブを閉じるだけではサーバーは停止しません。**
 
-## 11. バックグラウンド起動スクリプトの確認（実機検証は要実施）
+## 11. バックグラウンド起動スクリプトの確認
 
 ターミナルから起動用Shellをテストします。最初に上記の手動起動サーバーを停止してください。
 
@@ -284,22 +279,23 @@ python bin/translate_gui.py --model-size 0.8b
 tail -n 100 "$HOME/Library/Application Support/PLaMoTranslate/server.log"
 ```
 
-**モデルの起動後にGUIの終了ボタンで停止し、プロセスが終了するか確認してください。** この工程について実行済みであることを示すログは、今回の資料にはありません。
+**モデルの起動後にGUIの終了ボタンで停止し、プロセスが終了するか確認してください。**
 
-## 12. AppleScript常駐アプリの作成と確認（実機検証は要実施）
+## 12. AppleScript常駐アプリの作成と確認
 
-Mac標準の**スクリプトエディタ（Script Editor）**を使います。Automatorではありません。
+Mac標準の**スクリプトエディタ（Script Editor）**を使います。
 
 1. `~/MyProject/bin/plamo_stayopen_launcher.applescript` をスクリプトエディタで開き、コンパイルして構文エラーがないことを確認します。
 2. 「ファイル」→「書き出す」で、形式を **「アプリケーション」** にします。
-3. **「実行後も終了しない」（Stay open after run handler）**にチェックを入れます。
+3. **「ハンドラの実行後に終了しない」（Stay open after run handler）**にチェックを入れます。
 4. `PLaMo Translate.app` という名前で保存します。初回はデスクトップなどの確認しやすい場所が適しています。
 5. アプリを起動し、**0.8B / 2B / 8B / 31B** のモデル選択ダイアログが表示されることを確認します。
 6. 選択したモデルのロード完了後、ブラウザで `http://127.0.0.1:7860/` が開くことを確認します。
-7. Dockから再度アプリをクリックし、モデルが二重ロードされず既存画面を表示できることを確認します。
-8. 翻訳画面の「終了（モデルを停止）」から終了した場合、AppleScriptアプリも終了するか確認します。
-9. Dockのアプリの「終了」操作でモデルのPythonプロセスも終了するか確認します。
-10. 再起動時にモデル選択ダイアログが再表示されることを確認します。
+7. `PLaMo Translate.app`を`/Applications/`などに移動し、Dockに登録します。
+8. Dockから再度アプリをクリックし、モデルが二重ロードされず既存画面を表示できることを確認します。
+9. 翻訳画面の「終了（モデルを停止）」から終了した場合、AppleScriptアプリも終了するか確認します。
+10. Dockのアプリの「終了」操作でモデルのPythonプロセスも終了するか確認します。
+11. 再起動時にモデル選択ダイアログが再表示されることを確認します。
 
 AppleScriptからの起動ログは次の場所です。
 
@@ -307,7 +303,7 @@ AppleScriptからの起動ログは次の場所です。
 tail -n 100 "$HOME/Library/Application Support/PLaMoTranslate/dock_launcher.log"
 ```
 
-Dockアイコンの起動中ドットを保持するには、アプリを書き出す際の「実行後も終了しない」が重要です。**モデルロードが終わるまでDockアイコンがバウンスし続けることは保証されません。** なお、AppleScriptのコンパイルとDock連動については、Mac実機での確認が必要です。
+Dockアイコンの起動中ドットを保持するには、アプリを書き出す際の「ハンドラの実行後に終了しない」が重要です。**モデルロードが終わるまでDockアイコンがバウンスし続けることは保証されません。** AppleScriptのコンパイルとDock連動は、各自のMacで確認してください。
 
 ## 13. 日常運用とトラブルシューティング
 
@@ -319,7 +315,7 @@ Dockアイコンの起動中ドットを保持するには、アプリを書き�
 | 起動時に `plamo3` の警告が出る | 警告単独では失敗と断定できません。モデルのロードと翻訳結果も確認します |
 | 7860番ポートが使用中 | `lsof -nP -iTCP:7860 -sTCP:LISTEN` で使用元を調べます |
 | AppleScriptからブラウザが開かない | `server.log` と `dock_launcher.log` を確認します |
-| Dockで常駐しない | アプリ書き出し時に「実行後も終了しない」を有効にしたか確認します |
+| Dockで常駐しない | アプリ書き出し時に「ハンドラの実行後に終了しない」を有効にしたか確認します |
 | モデルを選び直せない | 稼働中モデルを終了してからアプリを起動し直します |
 | 起動に時間がかかる／停止する | ストレージ、ユニファイドメモリ、Pythonエラーをログで確認します |
 
@@ -356,7 +352,7 @@ PLaMo 3 Translateモデルは**PLaMo Community License**で提供されていま
 
 ## 付録A：単体テスト用 `test.py`
 
-以下は2026年11月8日のモデル単体テストに使用したコードです。`~/MyProject/test.py` にUTF-8で保存します。**これは任意のテスト用コードで、現在のGitHubリポジトリの `bin/` に含める3つの公開スクリプトとは別です。**
+以下はモデル単体の翻訳確認に使用できるコード例です。`~/MyProject/test.py` にUTF-8で保存します。**これは任意のテスト用コードで、現在のGitHubリポジトリの `bin/` に含める3つの公開スクリプトとは別です。**
 
 ```python
 """Minimal smoke test of one locally downloaded PLaMo Translate MLX model."""
