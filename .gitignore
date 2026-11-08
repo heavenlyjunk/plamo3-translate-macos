@@ -1,0 +1,25 @@
+# Python virtual environment
+plamo-mlx-env/
+.venv/
+venv/
+
+# Python temporary files
+__pycache__/
+*.pyc
+
+# Downloaded PLaMo models
+lib/
+*.safetensors
+
+# Credentials and local settings
+.env
+.env.*
+!.env.example
+*.pem
+
+# macOS
+.DS_Store
+
+# Application logs
+*.log
+*.pid
