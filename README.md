@@ -206,6 +206,7 @@ Gradioのサーバーは `127.0.0.1` にバインドし、外部公開しない�
 本アプリケーションは、Preferred Networksが開発したPLaMo 3 Translateを使用する非公式プロジェクトです。
 
 PLaMo 3 Translateのモデル本体（重み・モデルコードなど）は本リポジトリに含まれておらず、Preferred Networksが定める [PLaMo Community License](https://plamo.preferredai.jp/info/plamo-community-license-ja) が適用されます。
+PLaMo Community Licenseの全文は、[こちら](docs/PLaMo_COMMUNITY_LICENSE_ja.md)から確認できます。
 
 モデルの利用者は、商用利用を含む利用条件、再配布条件および表示義務について、公式ライセンスを確認してください。本リポジトリのMIT Licenseは、PLaMoのモデル本体には適用されません。
 
