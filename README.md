@@ -72,7 +72,7 @@ https://huggingface.co/collections/pfnet/plamo-3-translate
 
 ## インストール概要
 
-### 1. Python仮想環境の作成
+### 1. Python仮想環境の作成とアクティベート
 
 ```bash
 mkdir -p ~/MyProject/bin ~/MyProject/lib
@@ -81,30 +81,41 @@ cd ~/MyProject
 python3 -m venv plamo-mlx-env
 source plamo-mlx-env/bin/activate
 
-python -m pip install -U pip huggingface_hub
+pip install -U pip huggingface_hub
 ```
 
-### 2. モデルのダウンロード
+### 2. 仮想環境内でのhuggingface_hubのインストール
 
 ```bash
-for size in 0.8b 2b 8b 31b; do
-    hf download "pfnet/plamo-3-translate-${size}-MLX-4bit" --local-dir "$HOME/MyProject/lib/plamo-3-translate-${size}-MLX-4bit"
-done
+pip install -U pip huggingface_hub
 ```
 
-### 3. 必要なライブラリのインストール
+### 3. 仮想環境内でのモデルのダウンロード
 
 ```bash
-python -m pip install -U -r "$HOME/MyProject/lib/plamo-3-translate-31b-MLX-4bit/requirements-mlx.txt"
-
-python -m pip install 'gradio>=6,<7'
+hf download pfnet/plamo-3-translate-31b-MLX-4bit --local-dir "$HOME/MyProject/lib/plamo-3-translate-31b-MLX-4bit"
+hf download pfnet/plamo-3-translate-8b-MLX-4bit --local-dir "$HOME/MyProject/lib/plamo-3-translate-8b-MLX-4bit"
+hf download pfnet/plamo-3-translate-2b-MLX-4bit --local-dir "$HOME/MyProject/lib/plamo-3-translate-2b-MLX-4bit"
+hf download pfnet/plamo-3-translate-0.8b-MLX-4bit --local-dir "$HOME/MyProject/lib/plamo-3-translate-0.8b-MLX-4bit"
 ```
 
-### 4. アプリケーションの配置
+### 4. 仮想環境内でのモデルに必要なライブラリのインストール
+
+```bash
+pip install -U -r "$HOME/MyProject/lib/plamo-3-translate-31b-MLX-4bit/requirements-mlx.txt"
+```
+
+### 5. 仮想環境内でのGradioのインストール
+
+```bash
+pip install gradio
+```
+
+### 6. アプリケーションの配置
 
 本リポジトリの `bin/` に収録するPython、Shell、AppleScriptファイルを `~/MyProject/bin/` に配置します。
 
-### 5. 翻訳GUIの起動
+### 7. 翻訳GUIの起動
 
 例えば31Bモデルを使用する場合：
 
@@ -115,6 +126,12 @@ python bin/translate_gui.py --model-size 31b
 起動後、Webブラウザから次のURLにアクセスします。
 
 http://127.0.0.1:7860/
+
+### 8. 仮想環境のディアクティベート
+
+```bash
+deactivate
+```
 
 AppleScriptをmacOSアプリケーションとして書き出すことで、Dockからモデルを選択して起動することもできます。
 
