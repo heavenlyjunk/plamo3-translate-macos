@@ -1,5 +1,11 @@
 # PLaMo 3 Translate for macOS
 
+<p align="center">
+  <img src="assets/01_Simple_Translate_1024.png"
+       alt="PLaMo Translate App Icon"
+       width="160">
+</p>
+
 **Apple Silicon Mac向け・PLaMo 3 Translate ローカル翻訳アプリ**
 
 A local multilingual translation application for Apple Silicon Macs, powered by Preferred Networks' PLaMo 3 Translate models, MLX, and Gradio.
