@@ -1,9 +1,12 @@
 # PLaMo 3 Translate for macOS
 
 <p align="center">
-  <img src="assets/01_Simple_Translate_1024.png"
-       alt="PLaMo Translate App Icon"
-       width="160">
+  <img src="assets/01_Simple_Translate_1024.png" width="100">
+  <img src="assets/02_Academic_Translate_1024.png" width="100">
+  <img src="assets/03_Japan_Global_1024.png" width="100">
+  <img src="assets/04_AI_Modern_1024.png" width="100">
+  <img src="assets/05_Document_Translate_1024.png" width="100">
+  <img src="assets/06_Local_Nature_1024.png" width="100">
 </p>
 
 **Apple Silicon Mac向け・PLaMo 3 Translate ローカル翻訳アプリ**
@@ -194,6 +197,18 @@ deactivate
 これにより、Dockからアプリを起動して使用するモデルを選択し、Gradio翻訳インターフェースを利用できるようになります。
 
 詳細な環境構築・実装手順については、[日本語セットアップガイド](docs/SETUP_ja.md)を参照してください。
+
+## アプリアイコン
+
+本リポジトリの [assets/](assets/) には、
+6種類のアプリアイコンを収録しています。
+
+好みのアイコンを選択し、macOSの
+「情報を見る」からアプリケーションに設定できます。
+
+設定方法は
+[日本語セットアップガイド](docs/SETUP_ja.md)
+を参照してください。
 
 ## セキュリティとプライバシー
 
