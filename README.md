@@ -224,8 +224,6 @@ PLaMo Community Licenseの全文は、[こちら](docs/PLaMo_COMMUNITY_LICENSE_j
 
 ## 開発状況
 
-## 開発状況
-
 4種類のモデル（0.8B / 2B / 8B / 31B）について、ローカルでのモデル読み込み、基本的な翻訳、およびGradioサーバーの起動を確認しています。
 
 本リポジトリでは、Python・Shell・AppleScriptの実装スクリプトと、[日本語セットアップガイド](docs/SETUP_ja.md)を公開しています。
